@@ -1,35 +1,26 @@
-"use client";
+import { Task, Status, STATUS_CONFIG } from "@/types/task";
 
-import { Task } from "@/types/task";
-import { getStats } from "@/lib/store";
-import { CheckCircle2, Clock, AlertCircle, RotateCcw, ListTodo } from "lucide-react";
-
-interface StatsBarProps {
+interface Props {
   tasks: Task[];
 }
 
-export default function StatsBar({ tasks }: StatsBarProps) {
-  const s = getStats(tasks);
+const STATUSES: Status[] = ["todo", "in_progress", "review", "done"];
 
-  const stats = [
-    { label: "전체", value: s.total, icon: ListTodo, color: "text-slate-600", bg: "bg-slate-100" },
-    { label: "할 일", value: s.todo, icon: Clock, color: "text-slate-500", bg: "bg-slate-100" },
-    { label: "진행 중", value: s.in_progress, icon: RotateCcw, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "검토 중", value: s.review, icon: AlertCircle, color: "text-amber-600", bg: "bg-amber-50" },
-    { label: "완료", value: s.done, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
-  ];
-
+export function StatsBar({ tasks }: Props) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-      {stats.map(({ label, value, icon: Icon, color, bg }) => (
-        <div key={label} className={`rounded-xl ${bg} px-4 py-3 flex items-center gap-3`}>
-          <Icon className={`h-5 w-5 ${color}`} />
-          <div>
-            <p className={`text-xl font-bold ${color}`}>{value}</p>
-            <p className="text-xs text-slate-500">{label}</p>
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {STATUSES.map((s) => {
+        const conf = STATUS_CONFIG[s];
+        const count = tasks.filter((t) => t.status === s).length;
+        return (
+          <div key={s} className="rounded-lg border p-3 text-center">
+            <p className="text-2xl font-semibold">{count}</p>
+            <span className={`mt-1 inline-block rounded px-1.5 py-0.5 text-xs font-medium ${conf.color}`}>
+              {conf.label}
+            </span>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

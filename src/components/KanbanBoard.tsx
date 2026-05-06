@@ -1,54 +1,34 @@
 "use client";
 
 import { Task, Status, STATUS_CONFIG } from "@/types/task";
-import TaskCard from "./TaskCard";
-
-interface KanbanBoardProps {
-  tasks: Task[];
-  onEdit: (task: Task) => void;
-  onDelete: (id: string) => void;
-  onStatusChange: (id: string, status: Status) => void;
-}
+import { TaskCard } from "@/components/TaskCard";
 
 const COLUMNS: Status[] = ["todo", "in_progress", "review", "done"];
 
-const COLUMN_COLORS: Record<Status, string> = {
-  todo: "border-t-slate-400",
-  in_progress: "border-t-blue-500",
-  review: "border-t-amber-500",
-  done: "border-t-green-500",
-};
+interface Props {
+  tasks: Task[];
+  onEdit: (task: Task) => void;
+  onDelete: (id: string) => void;
+}
 
-export default function KanbanBoard({ tasks, onEdit, onDelete, onStatusChange }: KanbanBoardProps) {
+export function KanbanBoard({ tasks, onEdit, onDelete }: Props) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-      {COLUMNS.map((status) => {
-        const col = tasks.filter((t) => t.status === status);
-        const cfg = STATUS_CONFIG[status];
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {COLUMNS.map((col) => {
+        const colTasks = tasks.filter((t) => t.status === col);
+        const conf = STATUS_CONFIG[col];
         return (
-          <div key={status} className={`flex flex-col rounded-xl border-t-4 bg-slate-50 border border-slate-200 ${COLUMN_COLORS[status]}`}>
-            <div className="flex items-center justify-between px-4 py-3">
-              <span className="font-semibold text-sm text-slate-700">{cfg.label}</span>
-              <span className="text-xs font-medium bg-white border border-slate-200 text-slate-500 px-2 py-0.5 rounded-full">
-                {col.length}
+          <div key={col} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className={`rounded px-2 py-0.5 text-xs font-medium ${conf.color}`}>
+                {conf.label}
               </span>
+              <span className="text-xs text-muted-foreground">{colTasks.length}</span>
             </div>
-            <div className="flex flex-col gap-2 px-3 pb-3 min-h-[200px]">
-              {col.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center text-xs text-slate-300 py-8">
-                  일감 없음
-                </div>
-              ) : (
-                col.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onStatusChange={onStatusChange}
-                  />
-                ))
-              )}
+            <div className="min-h-20 space-y-2">
+              {colTasks.map((task) => (
+                <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} />
+              ))}
             </div>
           </div>
         );
